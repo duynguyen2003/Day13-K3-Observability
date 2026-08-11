@@ -16,18 +16,25 @@ except ImportError:  # pragma: no cover - chỉ dùng khi chưa cài requirement
 
         return decorator
 
-    class _DummyClient:
-        def update_current_trace(self, **kwargs: Any) -> None:
-            return None
+class _NoopClient:
+    def get_prompt(self, *args: Any, **kwargs: Any) -> None:
+        return None
 
-        def update_current_generation(self, **kwargs: Any) -> None:
-            return None
+    def update_current_trace(self, **kwargs: Any) -> None:
+        return None
 
+    def update_current_generation(self, **kwargs: Any) -> None:
+        return None
+
+
+if not LANGFUSE_SDK_AVAILABLE:
     def get_client():
-        return _DummyClient()
+        return _NoopClient()
 
 
 def get_langfuse_client():
+    if not tracing_enabled():
+        return _NoopClient()
     return get_client()
 
 
